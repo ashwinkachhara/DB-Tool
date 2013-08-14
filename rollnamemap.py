@@ -1,4 +1,4 @@
-import re
+import re, os, glob
 from cStringIO import StringIO
 from pdfminer.pdfparser import PDFDocument, PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
@@ -7,11 +7,14 @@ from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
 from pdfminer.cmapdb import CMapDB
 from pdfminer.layout import LAParams
 
+dirpath = "/home/ashwin/Dropbox/Placement/day2_2013/"
 
-
-_input = file("09007032 - 1.pdf", 'rb')
+_input = file(dirpath+"09007032 - 1.pdf", 'rb')
 _output = StringIO()
+_htmlfile = file(dirpath+"Phase1-2013.html", 'r+')
 
+html = _htmlfile.read()
+_htmlfile.close()
 manager = PDFResourceManager()
 
 converter = TextConverter(manager, _output, laparams = LAParams())
@@ -35,3 +38,17 @@ else: # Dual Degree student
     student['cpi'] = out[34] # 34 for a 2-page resume; 28 for a one-page resume
 
 print student
+
+for m in re.finditer(student['name'], html):
+    print m.start(0), m.end(0)
+
+filesearch = student['rollno']+'*'
+
+insertString = ""
+for filename in glob.glob(dirpath+filesearch):
+    insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
+
+#print insertString
+#print html[:m.end(0)]+insertString+html[m.end(0):]
+_htmlfile = file(dirpath+"Phase1-2013.html", 'w')
+_htmlfile.write(html[:m.end(0)]+insertString+html[m.end(0):])
