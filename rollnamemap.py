@@ -9,7 +9,7 @@ from pdfminer.layout import LAParams
 
 dirpath = "/home/ashwin/Dropbox/Placement/day2_2013/"
 
-_input = file(dirpath+"09007032 - 1.pdf", 'rb')
+_input = file(dirpath+"113070012 - 1.pdf", 'rb')
 _output = StringIO()
 _htmlfile = file(dirpath+"Phase1-2013.html", 'r+')
 
@@ -31,16 +31,17 @@ student['branch'] = out[1]
 if out[5] == "B.Tech.": # BTech student
     student['rollno'] = out[4]
     student['specialization'] = out[5]
-    student['cpi'] = out[35] # 35 for a 2-page resume; 27 for a one-page resume
+elif out[5] == "M.Tech.":
+    student['rollno'] = out[4]
+    student['specialization'] = out[5]
 else: # Dual Degree student
     student['rollno'] = out[5]
     student['specialization'] = out[3][16:]
-    student['cpi'] = out[34] # 34 for a 2-page resume; 28 for a one-page resume
 
 print student
 
-for m in re.finditer(student['name'], html):
-    print m.start(0), m.end(0)
+#for m in re.finditer(student['name'], html):
+#    print m.start(0), m.end(0)
 
 filesearch = student['rollno']+'*'
 
