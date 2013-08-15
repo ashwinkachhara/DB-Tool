@@ -47,9 +47,17 @@ def htmlRead():
 
 def addLinks(student):
     html = htmlRead()
+    
     for m in re.finditer(student['name'], html):
         pass
-
+    try:
+        print m
+    except UnboundLocalError:
+        stuName = student['name'].split(" ")
+        if stuName.length() == 3:
+            print stuName
+        #for m in re.finditer(stuName[])
+    
     filesearch = student['rollno']+'*'
     
     insertString = ""
