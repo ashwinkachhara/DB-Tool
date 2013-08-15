@@ -8,48 +8,66 @@ from pdfminer.cmapdb import CMapDB
 from pdfminer.layout import LAParams
 
 dirpath = "/home/ashwin/Dropbox/Placement/day2_2013/"
+htmlpath = dirpath+"Phase1-2013.html"
 
-_input = file(dirpath+"113070012 - 1.pdf", 'rb')
-_output = StringIO()
-_htmlfile = file(dirpath+"Phase1-2013.html", 'r+')
+def pdfParse(filename):
+    _input = file(filename, 'rb')
+    _output = StringIO()
+    
+    manager = PDFResourceManager()
+    
+    converter = TextConverter(manager, _output, laparams = LAParams())
+    process_pdf(manager, converter, _input)
+    
+    out = _output.getvalue().split("\n")
+    
+    #for index,line in enumerate(out):
+    #    print "Line", index, line
+    
+    student = {}
+    student['name'] = out[0]
+    student['branch'] = out[1]
+    if out[5] == "B.Tech.": # BTech student
+        student['rollno'] = out[4]
+        student['specialization'] = out[5]
+    elif out[5] == "M.Tech.":
+        student['rollno'] = out[4]
+        student['specialization'] = out[5]
+    else: # Dual Degree student
+        student['rollno'] = out[5]
+        student['specialization'] = out[3][16:]
+    return student
 
-html = _htmlfile.read()
-_htmlfile.close()
-manager = PDFResourceManager()
+def htmlRead():
+    _htmlfile = file(htmlpath, 'r+')
+    
+    html = _htmlfile.read()
+    _htmlfile.close()
+    return html
 
-converter = TextConverter(manager, _output, laparams = LAParams())
-process_pdf(manager, converter, _input)
+def addLinks(student):
+    html = htmlRead()
+    for m in re.finditer(student['name'], html):
+        pass
 
-out = _output.getvalue().split("\n")
+    filesearch = student['rollno']+'*'
+    
+    insertString = ""
+    for filename in glob.glob(dirpath+filesearch):
+        insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
+    if html[m.end(0)+2:m.end(0)+8] == "<a href":
+        insertString = ""
+    #print insertString
+    #print html[:m.end(0)]+insertString+html[m.end(0):]
+    _htmlfile = file(dirpath+"Phase1-2013.html", 'w')
+    _htmlfile.write(html[:m.end(0)]+insertString+html[m.end(0):])
+    
+def main():
+    for filename in glob.glob(dirpath+"* - 1.pdf"): #But there is also a filetype of * - 1_001.pdf; Probably just a redundancy in files?
+        print filename
+        student = pdfParse(filename)
+        addLinks(student)
+    
 
-#for index,line in enumerate(out):
-#    print "Line", index, line
-
-student = {}
-student['name'] = out[0]
-student['branch'] = out[1]
-if out[5] == "B.Tech.": # BTech student
-    student['rollno'] = out[4]
-    student['specialization'] = out[5]
-elif out[5] == "M.Tech.":
-    student['rollno'] = out[4]
-    student['specialization'] = out[5]
-else: # Dual Degree student
-    student['rollno'] = out[5]
-    student['specialization'] = out[3][16:]
-
-print student
-
-#for m in re.finditer(student['name'], html):
-#    print m.start(0), m.end(0)
-
-filesearch = student['rollno']+'*'
-
-insertString = ""
-for filename in glob.glob(dirpath+filesearch):
-    insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
-
-#print insertString
-#print html[:m.end(0)]+insertString+html[m.end(0):]
-_htmlfile = file(dirpath+"Phase1-2013.html", 'w')
-_htmlfile.write(html[:m.end(0)]+insertString+html[m.end(0):])
+if __name__ == "__main__":
+    main()
