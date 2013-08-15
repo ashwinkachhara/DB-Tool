@@ -17,8 +17,14 @@ def pdfParse(filename):
     manager = PDFResourceManager()
     
     converter = TextConverter(manager, _output, laparams = LAParams())
-    process_pdf(manager, converter, _input)
+    try:
+        process_pdf(manager, converter, _input)
+    except:
+        _input = file(dirpath+filename[-16:-6]+" 4.pdf", 'rb')
+        process_pdf(manager, converter, _input)
+         
     
+   
     out = _output.getvalue().split("\n")
     
     #for index,line in enumerate(out):
@@ -34,8 +40,14 @@ def pdfParse(filename):
         student['rollno'] = out[4]
         student['specialization'] = out[5]
     else: # Dual Degree student
-        student['rollno'] = out[5]
+        if out[5] == "":
+            student['rollno'] = out[6]
+        else:
+            student['rollno'] = out[5]
         student['specialization'] = out[3][16:]
+#    if student['name'] == "Prageet Sharma":
+#        for index,line in enumerate(out):
+#            print "Line", index, line
     return student
 
 def htmlRead():
@@ -47,28 +59,34 @@ def htmlRead():
 
 def addLinks(student):
     html = htmlRead()
-    
-    for m in re.finditer(student['name'], html):
-        pass
+    mStart = 0
+    mEnd = 0
+    for x in re.finditer(student['name'], html):
+        mStart = x.start(0)
+        mEnd = x.end(0)
     try:
-        print m
+        print x#, student['name'], student['rollno']
     except UnboundLocalError:
         stuName = student['name'].split(" ")
-        if stuName.length() == 3:
-            print stuName
-        #for m in re.finditer(stuName[])
-    
+        if len(stuName) == 3:
+            search = stuName[1]+" "+stuName[0]
+            print search
+            for x in re.finditer(search, html):
+                mEnd = x.end(0)
+                mStart = x.start(0)
+    print mStart, mEnd
     filesearch = student['rollno']+'*'
-    
     insertString = ""
     for filename in glob.glob(dirpath+filesearch):
+        #print filename
         insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
-    if html[m.end(0)+2:m.end(0)+8] == "<a href":
+    if html[mEnd+2:mEnd+8] == "<a href":
         insertString = ""
     #print insertString
     #print html[:m.end(0)]+insertString+html[m.end(0):]
-    _htmlfile = file(dirpath+"Phase1-2013.html", 'w')
-    _htmlfile.write(html[:m.end(0)]+insertString+html[m.end(0):])
+    if mStart != mEnd:
+        _htmlfile = file(dirpath+"Phase1-2013.html", 'w')
+        _htmlfile.write(html[:mEnd]+insertString+html[mEnd:])
     
 def main():
     for filename in glob.glob(dirpath+"* - 1.pdf"): #But there is also a filetype of * - 1_001.pdf; Probably just a redundancy in files?
