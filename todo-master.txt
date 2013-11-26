@@ -1,0 +1,18 @@
+2 word names: Should not be any problems
+
+multi-word names:
+
+- search individually for all the words and choose the instance with most #words in the vicinity
+
+	Ex Rahul Shankar Bhardwaj: Search separately for 'Rahul', 'Shankar' & 'Bhardwaj' and finally choose that instance with these names most closeby 
+	(or not separated by a '\n' character)
+
+- slightly brute-force algo:
+	Search for all permutations and combinations of a given name. 
+	Ex: For 'Rahul Shankar Bhardwaj', 
+	We will search for: 3C2*2! + 3P3 kinds of search strings
+	'Rahul Shankar', 'Shankar Rahul'
+	'Shankar Bhardwaj', 'Bhardwaj Shankar'
+	'Rahul Bhardwaj', 'Bhardwaj Rahul'
+
+	'Rahul Shankar Bhardwaj', 'Shankar Rahul Bhardwaj', 'Shankar Bhardwaj Rahul', 'Rahul Bhardwaj Shankar', 'Bhardwaj Shankar Rahul', 'Bhardwaj Rahul Shankar'
