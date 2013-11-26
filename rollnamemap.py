@@ -9,6 +9,14 @@ from pdfminer.layout import LAParams
 
 dirpath = "/home/ashwin/Dropbox/Placement/day2_2013/"
 htmlpath = dirpath+"Phase1-2013.html"
+htmlInit = '<html>\n \
+<head>\n \
+<title>Resume Database</title>\n \
+</head>\n \
+<body>\n'
+htmlEnd = '</body>\n \
+</html>'
+
 
 def pdfParse(filename):
     _input = file(filename, 'rb')
@@ -50,49 +58,81 @@ def pdfParse(filename):
 #            print "Line", index, line
     return student
 
-def htmlRead():
-    _htmlfile = file(htmlpath, 'r+')
-    
-    html = _htmlfile.read()
-    _htmlfile.close()
-    return html
+#~ def htmlRead():
+    #~ _htmlfile = file(htmlpath, 'r+')
+    #~ 
+    #~ html = _htmlfile.read()
+    #~ _htmlfile.close()
+    #~ return html
 
-def addLinks(student):
-    html = htmlRead()
-    mStart = 0
-    mEnd = 0
-    for x in re.finditer(student['name'], html):
-        mStart = x.start(0)
-        mEnd = x.end(0)
-    try:
-        print x#, student['name'], student['rollno']
-    except UnboundLocalError:
-        stuName = student['name'].split(" ")
-        if len(stuName) == 3:
-            search = stuName[1]+" "+stuName[0]
-            print search
-            for x in re.finditer(search, html):
-                mEnd = x.end(0)
-                mStart = x.start(0)
-    print mStart, mEnd
-    filesearch = student['rollno']+'*'
-    insertString = ""
-    for filename in glob.glob(dirpath+filesearch):
-        #print filename
-        insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
-    if html[mEnd+2:mEnd+8] == "<a href":
-        insertString = ""
-    #print insertString
-    #print html[:m.end(0)]+insertString+html[m.end(0):]
-    if mStart != mEnd:
-        _htmlfile = file(dirpath+"Phase1-2013.html", 'w')
-        _htmlfile.write(html[:mEnd]+insertString+html[mEnd:])
+#~ def addLinks(student):
+    #~ html = htmlRead()
+    #~ mStart = 0
+    #~ mEnd = 0
+    #~ for x in re.finditer(student['name'], html):
+        #~ mStart = x.start(0)
+        #~ mEnd = x.end(0)
+    #~ try:
+        #~ print x#, student['name'], student['rollno']
+    #~ except UnboundLocalError:
+        #~ stuName = student['name'].split(" ")
+        #~ if len(stuName) == 3:
+            #~ search = stuName[1]+" "+stuName[0]
+            #~ print search
+            #~ for x in re.finditer(search, html):
+                #~ mEnd = x.end(0)
+                #~ mStart = x.start(0)
+    #~ print mStart, mEnd
+    #~ filesearch = student['rollno']+'*'
+    #~ insertString = ""
+    #~ for filename in glob.glob(dirpath+filesearch):
+        #~ #print filename
+        #~ insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
+    #~ if html[mEnd+2:mEnd+8] == "<a href":
+        #~ insertString = ""
+    #~ #print insertString
+    #~ #print html[:m.end(0)]+insertString+html[m.end(0):]
+    #~ if mStart != mEnd:
+        #~ _htmlfile = file(dirpath+"Phase1-2013.html", 'w')
+        #~ _htmlfile.write(html[:mEnd]+insertString+html[mEnd:])
+def headingi(string,i):
+	return '<h'+str(i)+'>'+string+'</h'+str(i)+'>\n'
+
+def writeData(student):
+	dataString = student['rollno'] + '\t\t' + student['name'] + '\t\t' + student['specialization'] + '\t\t'
+	filesearch = student['rollno']+'*'
+	insertString = ""
+	for filename in glob.glob(dirpath+filesearch):
+		#print filename
+		insertString = insertString + " <a href=\""+filename+"\">"+filename[-5]+"</a>"
+	#~ if html[mEnd+2:mEnd+8] == "<a href":
+		#~ insertString = ""
+	dataString = dataString + insertString + '<br />'
+	return dataString
+	
+        
+def htmlWrite(students):
+	htmlfile = file(dirpath+"dbPhase1-2013.html",'w')
+	htmlfile.write(htmlInit)
+	sortedStudents = sorted(students, key=lambda k: k['branch']+' '+k['specialization'])
+	htmlfile.write(headingi('Resume Database', 1))
+	branch = sortedStudents[0]['branch']
+	htmlfile.write(headingi(branch,2))
+	print sortedStudents
+	for student in sortedStudents:
+		if student['branch'] != branch:
+			branch = student['branch']
+			htmlfile.write(headingi(branch, 2))
+		htmlfile.write(writeData(student))
+	htmlfile.write(htmlEnd)
+
     
 def main():
-    for filename in glob.glob(dirpath+"* - 1.pdf"): #But there is also a filetype of * - 1_001.pdf; Probably just a redundancy in files?
-        print filename
-        student = pdfParse(filename)
-        addLinks(student)
+	students = []
+	for filename in glob.glob(dirpath+"* - 1.pdf"): #But there is also a filetype of * - 1_001.pdf; Probably just a redundancy in files?
+		student = pdfParse(filename)
+		students.append(student)
+	htmlWrite(students)
     
 
 if __name__ == "__main__":
