@@ -11,3 +11,6 @@ adds the links to all the resume files associated to that student.
 -Some errors due to name spelling differences in the webpage and in the resume
 
 Correctly matching about 70% of the cases
+
+Future Work
+- Rather than matching, just sort and group resumes and present in a user-friendly format (HTML file, perhaps)
